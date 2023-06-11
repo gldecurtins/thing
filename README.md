@@ -11,14 +11,9 @@ Clone repo and install library::
     $ git clone git@github.com:gldecurtins/thing.git
     $ cd thing
 
-Install the app::
-
-    $ pip install -e .
-
 Run application::
 
-    $ cd aiohttp_thing
-    $ python main.py
+    $ docker-compose up
 
 Open browser::
 

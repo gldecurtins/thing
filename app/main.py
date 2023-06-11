@@ -4,7 +4,7 @@ import jinja2
 
 import aiohttp_jinja2
 from aiohttp import web
-from aiohttp_thing.views import index
+from views import index
 
 
 async def init_app():
@@ -14,7 +14,7 @@ async def init_app():
 
     app.on_shutdown.append(shutdown)
 
-    aiohttp_jinja2.setup(app, loader=jinja2.PackageLoader("aiohttp_thing", "templates"))
+    aiohttp_jinja2.setup(app, loader=jinja2.FileSystemLoader("templates"))
 
     app.router.add_get("/", index)
 
