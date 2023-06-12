@@ -1,115 +1,152 @@
 <!DOCTYPE html>
-<meta charset="utf-8" />
-<html>
-  <head>
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/3.7.0/jquery.min.js">
-    </script>
-    <script language="javascript" type="text/javascript">
-     $(function() {
-       var conn = null;
-       var name = "UNKNOWN";
-       function log(msg) {
-         var control = $('#log');
+<html lang="en">
+
+<head>
+   <meta name="viewport" content="width=device-width, initial-scale=1">
+   <meta name="mobile-web-app-capable" content="yes">
+   <meta name="apple-mobile-web-app-capable" content="yes">
+   <meta name="application-name" content="Thing">
+   <meta name="apple-mobile-web-app-title" content="Thing">
+   <meta name="theme-color" content="#4F46E5">
+   <meta name="msapplication-navbutton-color" content="#4F46E5">
+   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+   <meta name="msapplication-starturl" content="/">
+   <script src="https://cdn.tailwindcss.com/3.2.6"></script>
+   <script src="https://unpkg.com/alpinejs@3.11.1/dist/cdn.min.js"
+      integrity="sha384-D0U8hqw9ySktLounY2q1PAWeijVsqewBtT2NhQp2pxSugkKfpRnovV2sSwJC+V5U" crossorigin="anonymous"
+      defer></script>
+</head>
+
+<body>
+   <!-- component -->
+   <div class="flex-1 p:2 sm:p-6 justify-between flex flex-col h-screen"
+      x-data="{ user_name: 'Unnamed user', channel_name: 'Unnamed channel', message: 0}">
+      <div class="flex sm:items-center justify-between py-3 border-b-2 border-gray-200">
+         <div class="relative flex items-center space-x-4">
+            <div class="flex flex-col leading-tight">
+               <div class="text-2xl mt-1 flex items-center">
+                  <span class="text-gray-700 mr-3" x-text="user_name"></span>
+               </div>
+            </div>
+         </div>
+         <button x-on:click="connect" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded">
+            Connect
+         </button>
+      </div>
+      <div id="messages"
+         class="flex flex-col space-y-4 p-3 overflow-y-auto scrollbar-thumb-blue scrollbar-thumb-rounded scrollbar-track-blue-lighter scrollbar-w-2 scrolling-touch">
+         <div>
+            <button id="connect">Connect</button>&nbsp;|&nbsp;Status:
+            <span id="status">disconnected</span>
+         </div>
+         <div>
+            <h1 x-text="message"></h1>
+         </div>
+      </div>
+      <div class="border-t-2 border-gray-200 px-4 pt-4 mb-2 sm:mb-0">
+         <div class="relative flex">
+            <input type="text" placeholder="Message or /h for help"
+               class="w-full focus:outline-none focus:placeholder-gray-400 text-gray-600 placeholder-gray-600 pl-12 bg-gray-200 rounded-md py-3">
+            <div class="absolute right-0 items-center inset-y-0 hidden sm:flex">
+               <button type="button" x-on:click="message++"
+                  class="inline-flex items-center justify-center rounded-lg px-4 py-3 transition duration-500 ease-in-out text-white bg-blue-500 hover:bg-blue-400 focus:outline-none">
+                  <span class="font-bold">Send</span>
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"
+                     class="h-6 w-6 ml-2 transform rotate-90">
+                     <path
+                        d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z">
+                     </path>
+                  </svg>
+               </button>
+            </div>
+         </div>
+      </div>
+   </div>
+
+   <style>
+      .scrollbar-w-2::-webkit-scrollbar {
+         width: 0.25rem;
+         height: 0.25rem;
+      }
+
+      .scrollbar-track-blue-lighter::-webkit-scrollbar-track {
+         --bg-opacity: 1;
+         background-color: #f7fafc;
+         background-color: rgba(247, 250, 252, var(--bg-opacity));
+      }
+
+      .scrollbar-thumb-blue::-webkit-scrollbar-thumb {
+         --bg-opacity: 1;
+         background-color: #edf2f7;
+         background-color: rgba(237, 242, 247, var(--bg-opacity));
+      }
+
+      .scrollbar-thumb-rounded::-webkit-scrollbar-thumb {
+         border-radius: 0.25rem;
+      }
+   </style>
+
+   <script>
+      const el = document.getElementById('messages')
+      el.scrollTop = el.scrollHeight
+
+      var conn = null;
+
+      function log(msg) {
          var date = new Date();
-         var date_prompt = '(' + date.toISOString().split('T')[1].slice(0,8) + ') ';
-         control.prepend(date_prompt + msg + '<br/>');
-         // control.html(control.html() + date_prompt + msg + '<br/>');
-         control.scrollTop(control.scrollTop() + 1000);
-       }
-       function connect() {
+         var date_prompt = '(' + date.toISOString().split('T')[1].slice(0, 8) + ') ';
+      }
+
+      function connect() {
          disconnect();
-         var wsUri = (window.location.protocol=='https:'&&'wss://'||'ws://')+window.location.host;
+         var wsUri = (window.location.protocol == 'https:' && 'wss://' || 'ws://') + window.location.host;
          conn = new WebSocket(wsUri);
-         //log('Connecting...');
-         conn.onopen = function() {
-           //log('Connected.');
-           update_ui();
+         conn.onopen = function () {
+            update_ui();
          };
-         conn.onmessage = function(e) {
-           var data = JSON.parse(e.data);
-           switch (data.action) {
-             case  'connect':
-               name = data.name;
-               log('Connected as ' + name);
-               update_ui();
-               break;
-             case  'disconnect':
-               name = data.name;
-               log('Disconnected ' + name);
-               update_ui();
-               break;
-             case 'join':
-               log('Joined ' + data.name);
-               break;
-             case 'sent':
-               log(data.name + ': ' + data.text);
-               break;
-           }
+         conn.onmessage = function (e) {
+            var data = JSON.parse(e.data);
+            switch (data.action) {
+               case 'connect':
+                  name = data.name;
+                  log('Connected as ' + name);
+                  update_ui();
+                  break;
+               case 'disconnect':
+                  name = data.name;
+                  log('Disconnected ' + name);
+                  update_ui();
+                  break;
+               case 'join':
+                  log('Joined ' + data.name);
+                  break;
+               case 'sent':
+                  log(data.name + ': ' + data.text);
+                  break;
+            }
          };
-         conn.onclose = function() {
-           log('Disconnected.');
-           conn = null;
-           update_ui();
+         conn.onclose = function () {
+            log('Disconnected.');
+            conn = null;
+            update_ui();
          };
-       }
-       function disconnect() {
+      }
+      function disconnect() {
          if (conn != null) {
-           //log('Disconnecting...');
-           conn.close();
-           conn = null;
-           name = 'UNKNOWN';
-           update_ui();
+            //log('Disconnecting...');
+            conn.close();
+            conn = null;
+            name = 'UNKNOWN';
+            update_ui();
          }
-       }
-       function update_ui() {
-         if (conn == null) {
-           $('#status').text('disconnected');
-           $('#connect').html('Connect');
-           $('#send').prop("disabled", true);
-         } else {
-           $('#status').text('connected (' + conn.protocol + ')');
-           $('#connect').html('Disconnect');
-           $('#send').prop("disabled", false);
-         }
-         $('#name').text(name);
-       }
-       $('#connect').on('click', function() {
-         if (conn == null) {
-           connect();
-         } else {
-           disconnect();
-         }
-         update_ui();
-         return false;
-       });
-       $('#send').on('click', function() {
-         var text = $('#text').val();
-         // log('Sending: ' + text);
-         log(text);
-         conn.send(text);
-         $('#text').val('').focus();
-         return false;
-       });
-       $('#text').on('keyup', function(e) {
-         if (e.keyCode === 13) {
-           $('#send').click();
-           return false;
-         }
-       });
-     });
-    </script>
-  </head>
-  <body>
-    <div>
-      <button id="connect">Connect</button>&nbsp;|&nbsp;Status:
-      <span id="name">UNKNOWN</span>
-      <span id="status">disconnected</span>
-    </div>
-    <form id="chatform" onsubmit="return false;">
-      <input id="text" type="text" />
-      <input id="send" type="button" value="Send" disabled/>
-    </form>
-    <div id="log">
-    </div>
-  </body>
+      }
+      function update_ui() {
+         alert('hi')
+      }
+      document.addEventListener('alpine:init', () => {
+         Alpine.data()
+      })
+   </script>
+</body>
+
 </html>
