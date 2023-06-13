@@ -17,9 +17,8 @@
       defer></script>
 </head>
 <body>
-   <div class="flex-1 p:2 sm:p-6 justify-between flex flex-col h-screen"
-      x-data="{ user_name: 'Unnamed user', channel_name: 'Unnamed channel', message: 0}">
-      <div class="flex sm:items-center justify-between py-3 border-b-2 border-gray-200">
+   <div x-data="thing" class="flex-1 p:2 sm:p-6 justify-between flex flex-col h-screen">
+      <div class="flex sm:items-center justify-between py-3 border-b-2 border-gray-200" >
          <div class="relative flex items-center space-x-4">
             <div class="flex flex-col leading-tight">
                <div class="text-2xl mt-1 flex items-center">
@@ -31,22 +30,26 @@
             Connect
          </button>
       </div>
-      <div id="messages"
-         class="flex flex-col space-y-4 p-3 overflow-y-auto scrollbar-thumb-blue scrollbar-thumb-rounded scrollbar-track-blue-lighter scrollbar-w-2 scrolling-touch">
-         <div>
-            <button id="connect">Connect</button>&nbsp;|&nbsp;Status:
-            <span id="status">disconnected</span>
-         </div>
-         <div>
-            <h1 x-text="message"></h1>
-         </div>
-      </div>
+      <div id="messages" class="flex flex-col space-y-1 p-3 overflow-y-auto scrollbar-thumb-blue scrollbar-thumb-rounded scrollbar-track-blue-lighter scrollbar-w-2 scrolling-touch">
+         <template x-for="(message, key) in messages">
+             <div>
+                 <div class="flex items-end">
+                     <div class="flex flex-col text-md leading-tight max-w-lg">
+                         <div>
+                              <span class="px-2 rounded-xl inline-block" x-html="message.from"></span>
+                              <span class="px-4 rounded-xl inline-block" x-html="message.text"></span>
+                         </div>
+                     </div>
+                 </div>
+             </div>
+         </template>
+     </div>
       <div class="border-t-2 border-gray-200 px-4 pt-4 mb-2 sm:mb-0">
          <div class="relative flex">
             <input type="text" placeholder="Message or /h for help"
                class="w-full focus:outline-none focus:placeholder-gray-400 text-gray-600 placeholder-gray-600 pl-12 bg-gray-200 rounded-md py-3">
             <div class="absolute right-0 items-center inset-y-0 hidden sm:flex">
-               <button type="button" x-on:click="message++"
+               <button type="button" @click="send"
                   class="inline-flex items-center justify-center rounded-lg px-4 py-3 transition duration-500 ease-in-out text-white bg-blue-500 hover:bg-blue-400 focus:outline-none">
                   <span class="font-bold">Send</span>
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"
@@ -61,88 +64,64 @@
       </div>
    </div>
 
-   <style>
-      .scrollbar-w-2::-webkit-scrollbar {
-         width: 0.25rem;
-         height: 0.25rem;
-      }
-
-      .scrollbar-track-blue-lighter::-webkit-scrollbar-track {
-         --bg-opacity: 1;
-         background-color: #f7fafc;
-         background-color: rgba(247, 250, 252, var(--bg-opacity));
-      }
-
-      .scrollbar-thumb-blue::-webkit-scrollbar-thumb {
-         --bg-opacity: 1;
-         background-color: #edf2f7;
-         background-color: rgba(237, 242, 247, var(--bg-opacity));
-      }
-
-      .scrollbar-thumb-rounded::-webkit-scrollbar-thumb {
-         border-radius: 0.25rem;
-      }
-   </style>
-
    <script>
       const el = document.getElementById('messages')
       el.scrollTop = el.scrollHeight
 
-      var conn = null;
-
-      function log(msg) {
-         var date = new Date();
-         var date_prompt = '(' + date.toISOString().split('T')[1].slice(0, 8) + ') ';
-      }
-
-      function connect() {
-         disconnect();
-         var wsUri = (window.location.protocol == 'https:' && 'wss://' || 'ws://') + window.location.host;
-         conn = new WebSocket(wsUri);
-         conn.onopen = function () {
-            update_ui();
-         };
-         conn.onmessage = function (e) {
-            var data = JSON.parse(e.data);
-            switch (data.action) {
-               case 'connect':
-                  name = data.name;
-                  log('Connected as ' + name);
-                  update_ui();
-                  break;
-               case 'disconnect':
-                  name = data.name;
-                  log('Disconnected ' + name);
-                  update_ui();
-                  break;
-               case 'join':
-                  log('Joined ' + data.name);
-                  break;
-               case 'sent':
-                  log(data.name + ': ' + data.text);
-                  break;
-            }
-         };
-         conn.onclose = function () {
-            log('Disconnected.');
-            conn = null;
-            update_ui();
-         };
-      }
-      function disconnect() {
-         if (conn != null) {
-            //log('Disconnecting...');
-            conn.close();
-            conn = null;
-            name = 'UNKNOWN';
-            update_ui();
-         }
-      }
-      function update_ui() {
-         alert('hi')
-      }
       document.addEventListener('alpine:init', () => {
-         Alpine.data()
+         Alpine.data('thing', () => ({
+            connection: {user_name: '', channel_id: '', channel_name: ''},
+            message: {from_user_name: '', to_user_name: '', text:''},
+            messages: [message,],
+            conn: null,
+
+            connect() {
+               var wsUri = (window.location.protocol == 'https:' && 'wss://' || 'ws://') + window.location.host;
+               conn = new WebSocket(wsUri);
+               conn.onopen = function () {
+                  this.message = 'hi'
+               };
+               conn.onmessage = function (e) {
+                  var data = JSON.parse(e.data);
+                  switch (data.action) {
+                     case 'connect':
+                        connection.user_name = data.name;
+                        pushMessage('Connected as ' + connection.user_name);
+                        break;
+                     case 'disconnect':
+                        connection.user_name = data.name;
+                        pushMessage('Disconnected ' + connection.user_name);
+                        break;
+                     case 'join':
+                        pushMessage('Joined ' + data.name);
+                        break;
+                     case 'sent':
+                        pushMessage(data.name + ': ' + data.text);
+                        break;
+                  }
+               };
+               conn.onclose = function () {
+                  pushMessage('Disconnected.');
+                  this.conn = null;
+               };
+            },
+
+            disconnect() {
+               if (this.conn != null) {
+                  this.conn.close();
+                  this.conn = null;
+                  this.user_name = 'UNKNOWN';
+               }
+            },
+
+            send() {
+               this.messages.push({
+                  from: 'user',
+                  text: 'hi'
+              });
+            },
+
+         }))
       })
    </script>
 </body>
