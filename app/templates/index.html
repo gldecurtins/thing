@@ -26,7 +26,7 @@
           <template x-for="(message, key) in messages">
             <div>
               <div class="flex items-end">
-                <div class="text-md leading-tight max-w-lg">
+                <div class="text-md leading-tight w-full">
                   <div>
                     <span
                       class="rounded-xl inline-block"
@@ -88,6 +88,11 @@
                this.sendDisabled = false
             };
 
+            socket.onclose = () => {
+               this.socket = null
+               this.sendDisabled = true
+            };
+
             socket.onmessage = (event) => {
                var response = JSON.parse(event.data)
                switch (response.action) {
@@ -108,11 +113,6 @@
                      this.messages.push({text: output})
                      break;
                }
-            };
-
-            socket.onclose = () => {
-               this.socket = null
-               this.sendDisabled = true
             };
           },
 
