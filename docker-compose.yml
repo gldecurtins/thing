@@ -2,7 +2,8 @@ version: "3"
 
 services:
   thing:
-    build: .
+    build:
+      dockerfile: Dockerfile
     volumes:
       - ./app:/app/
     ports:
