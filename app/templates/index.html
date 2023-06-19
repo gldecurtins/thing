@@ -1,129 +1,137 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-   <meta name="viewport" content="width=device-width, initial-scale=1">
-   <meta name="mobile-web-app-capable" content="yes">
-   <meta name="apple-mobile-web-app-capable" content="yes">
-   <meta name="application-name" content="Thing">
-   <meta name="apple-mobile-web-app-title" content="Thing">
-   <meta name="theme-color" content="#4F46E5">
-   <meta name="msapplication-navbutton-color" content="#4F46E5">
-   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-   <meta name="msapplication-starturl" content="/">
-   <script src="https://cdn.tailwindcss.com/3.2.6"></script>
-   <script src="https://unpkg.com/alpinejs@3.11.1/dist/cdn.min.js"
-      integrity="sha384-D0U8hqw9ySktLounY2q1PAWeijVsqewBtT2NhQp2pxSugkKfpRnovV2sSwJC+V5U" crossorigin="anonymous"
-      defer></script>
-</head>
-<body>
-   <div x-data="thing" class="flex-1 p:2 sm:p-6 justify-between flex flex-col h-screen">
-      <div class="flex sm:items-center justify-between py-3 border-b-2 border-gray-200" >
-         <div class="relative flex items-center space-x-4">
-            <div class="flex flex-col leading-tight">
-               <div class="text-2xl mt-1 flex items-center">
-                  <span class="text-gray-700 mr-3" x-text="user_name"></span>
-               </div>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="application-name" content="Thing" />
+    <meta name="apple-mobile-web-app-title" content="Thing" />
+    <meta name="theme-color" content="#4F46E5" />
+    <meta name="msapplication-navbutton-color" content="#4F46E5" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
+    <meta name="msapplication-starturl" content="/" />
+    <script src="https://unpkg.com/alpinejs" defer></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body>
+    <div class="font-mono" x-data="thing" x-init="connect">
+      <div class="flex-1 p:2 sm:p-6 justify-between flex flex-col h-screen">
+        <div
+          id="messages"
+          class="flex flex-col space-y-1 p-3 overflow-y-auto scrollbar-thumb-blue scrollbar-thumb-rounded scrollbar-track-blue-lighter scrollbar-w-2 scrolling-touch"
+        >
+          <template x-for="(message, key) in messages">
+            <div>
+              <div class="flex items-end">
+                <div class="text-md leading-tight max-w-lg">
+                  <div>
+                    <span
+                      class="rounded-xl inline-block"
+                      x-text="message.text"
+                    ></span>
+                  </div>
+                </div>
+              </div>
             </div>
-         </div>
-         <button x-on:click="connect" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded">
-            Connect
-         </button>
-      </div>
-      <div id="messages" class="flex flex-col space-y-1 p-3 overflow-y-auto scrollbar-thumb-blue scrollbar-thumb-rounded scrollbar-track-blue-lighter scrollbar-w-2 scrolling-touch">
-         <template x-for="(message, key) in messages">
-             <div>
-                 <div class="flex items-end">
-                     <div class="flex flex-col text-md leading-tight max-w-lg">
-                         <div>
-                              <span class="px-2 rounded-xl inline-block" x-html="message.from"></span>
-                              <span class="px-4 rounded-xl inline-block" x-html="message.text"></span>
-                         </div>
-                     </div>
-                 </div>
-             </div>
-         </template>
-     </div>
-      <div class="border-t-2 border-gray-200 px-4 pt-4 mb-2 sm:mb-0">
-         <div class="relative flex">
-            <input type="text" placeholder="Message or /h for help"
-               class="w-full focus:outline-none focus:placeholder-gray-400 text-gray-600 placeholder-gray-600 pl-12 bg-gray-200 rounded-md py-3">
+          </template>
+        </div>
+        <div class="border-t-2 border-gray-200 px-4 pt-4 mb-2 sm:mb-0">
+          <div class="relative flex">
+            <input
+              type="text"
+              x-model="input"
+              @keyup.enter="send"
+              placeholder="Message or /h for help"
+              class="w-full focus:outline-none focus:placeholder-gray-400 text-gray-600 placeholder-gray-600 pl-12 bg-gray-200 rounded-md py-3"
+            />
             <div class="absolute right-0 items-center inset-y-0 hidden sm:flex">
-               <button type="button" @click="send"
-                  class="inline-flex items-center justify-center rounded-lg px-4 py-3 transition duration-500 ease-in-out text-white bg-blue-500 hover:bg-blue-400 focus:outline-none">
-                  <span class="font-bold">Send</span>
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"
-                     class="h-6 w-6 ml-2 transform rotate-90">
-                     <path
-                        d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z">
-                     </path>
-                  </svg>
-               </button>
+              <button
+                type="button"
+                @click="send"
+                x-bind:disabled="sendDisabled"
+                class="inline-flex items-center justify-center rounded-lg px-4 py-3 transition duration-500 ease-in-out text-white bg-blue-500 hover:bg-blue-400 focus:outline-none"
+              >
+                <span class="font-bold">Send</span>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                  class="h-6 w-6 ml-2 transform rotate-90"
+                >
+                  <path
+                    d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z"
+                  ></path>
+                </svg>
+              </button>
             </div>
-         </div>
+          </div>
+        </div>
       </div>
-   </div>
+    </div>
+    <script>
+    document.addEventListener("alpine:init", () => {
+      Alpine.data("thing", () => ({
+         sendDisabled: true,
+         socket: null,
+         input: "",
+         messages: [],
 
-   <script>
-      const el = document.getElementById('messages')
-      el.scrollTop = el.scrollHeight
 
-      document.addEventListener('alpine:init', () => {
-         Alpine.data('thing', () => ({
-            connection: {user_name: '', channel_id: '', channel_name: ''},
-            message: {from_user_name: '', to_user_name: '', text:''},
-            messages: [message,],
-            conn: null,
+         connect() {
+            var socketUri = ((window.location.protocol == "https:" && "wss://") || "ws://") + window.location.host;
+            socket = new WebSocket(socketUri)
 
-            connect() {
-               var wsUri = (window.location.protocol == 'https:' && 'wss://' || 'ws://') + window.location.host;
-               conn = new WebSocket(wsUri);
-               conn.onopen = function () {
-                  this.message = 'hi'
-               };
-               conn.onmessage = function (e) {
-                  var data = JSON.parse(e.data);
-                  switch (data.action) {
-                     case 'connect':
-                        connection.user_name = data.name;
-                        pushMessage('Connected as ' + connection.user_name);
-                        break;
-                     case 'disconnect':
-                        connection.user_name = data.name;
-                        pushMessage('Disconnected ' + connection.user_name);
-                        break;
-                     case 'join':
-                        pushMessage('Joined ' + data.name);
-                        break;
-                     case 'sent':
-                        pushMessage(data.name + ': ' + data.text);
-                        break;
-                  }
-               };
-               conn.onclose = function () {
-                  pushMessage('Disconnected.');
-                  this.conn = null;
-               };
-            },
+            socket.onopen = () => {
+               this.sendDisabled = false
+            };
 
-            disconnect() {
-               if (this.conn != null) {
-                  this.conn.close();
-                  this.conn = null;
-                  this.user_name = 'UNKNOWN';
+            socket.onmessage = (event) => {
+               var response = JSON.parse(event.data)
+               switch (response.action) {
+                  case "connect":
+                     var output = '>>> Welcome ' + response.name
+                     this.messages.push({text: output})
+                     break;
+                  case "disconnect":
+                     var output = '>>> ' + response.name + ' left'
+                     this.messages.push({text: output})
+                     break;
+                  case "join":
+                     var output = '>>> ' + response.name + ' joined'
+                     this.messages.push({text: output})
+                     break;
+                  case "sent":
+                     var output = '<' + response.name + '> ' + response.text
+                     this.messages.push({text: output})
+                     break;
                }
-            },
+            };
 
-            send() {
-               this.messages.push({
-                  from: 'user',
-                  text: 'hi'
-              });
-            },
+            socket.onclose = () => {
+               this.socket = null
+               this.sendDisabled = true
+            };
+          },
 
-         }))
-      })
-   </script>
-</body>
+          disconnect() {
+            if (this.socket != null) {
+              this.socket.close()
+              this.socket = null
+            }
+          },
 
+          send() {
+            if (this.input) {
+               socket.send(this.input)
+               this.messages.push({text: this.input})
+               this.input = ''
+            }
+          },
+        }));
+      }); 
+    </script>
+  </body>
 </html>
