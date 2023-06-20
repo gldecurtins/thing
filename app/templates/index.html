@@ -90,24 +90,7 @@
 
             socket.onmessage = (event) => {
               var response = JSON.parse(event.data);
-              switch (response.action) {
-                case "connect":
-                  var output = ">>> Welcome " + response.name;
-                  this.messages.push({ text: output });
-                  break;
-                case "disconnect":
-                  var output = ">>> " + response.name + " left";
-                  this.messages.push({ text: output });
-                  break;
-                case "join":
-                  var output = ">>> " + response.name + " joined";
-                  this.messages.push({ text: output });
-                  break;
-                case "sent":
-                  var output = "<" + response.name + "> " + response.text;
-                  this.messages.push({ text: output });
-                  break;
-              }
+              this.messages.push({ "text": response.text })
             };
           },
 
@@ -121,7 +104,7 @@
           send() {
             if (this.input) {
               socket.send(this.input);
-              this.messages.push({ text: this.input });
+              this.messages.push({ "text": this.input });
               this.input = "";
             }
           },

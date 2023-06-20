@@ -22,12 +22,12 @@ async def index(request):
     await ws_current.prepare(request)
 
     name = get_random_name()
-    log.info("%s joined.", name)
+    log.info(f"{name} joined")
 
-    await ws_current.send_json({"action": "connect", "name": name})
+    await ws_current.send_json({"text": f">>> Welcome {name}"})
 
     for ws in request.app["websockets"].values():
-        await ws.send_json({"action": "join", "name": name})
+        await ws.send_json({"text": f">>> {name} joined"})
     request.app["websockets"][name] = ws_current
 
     while True:
@@ -36,15 +36,13 @@ async def index(request):
         if msg.type == aiohttp.WSMsgType.text:
             for ws in request.app["websockets"].values():
                 if ws is not ws_current:
-                    await ws.send_json(
-                        {"action": "sent", "name": name, "text": msg.data}
-                    )
+                    await ws.send_json({"text": f"<{name}> {msg.data}"})
         else:
             break
 
     del request.app["websockets"][name]
-    log.info("%s disconnected.", name)
+    log.info(f"{name} disconnected")
     for ws in request.app["websockets"].values():
-        await ws.send_json({"action": "disconnect", "name": name})
+        await ws.send_json({"text": f">>> {name} disconnected"})
 
     return ws_current
