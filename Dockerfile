@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1
-FROM python:latest
+FROM python:3.11.4-alpine
 WORKDIR /app
 EXPOSE 8080
 ARG REQUIREMENTS=requirements-dev.txt
