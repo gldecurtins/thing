@@ -1,6 +1,5 @@
 version: "3.8"
 
-name: thing
 services:
   thing:
     build:
