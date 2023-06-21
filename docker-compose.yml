@@ -16,7 +16,3 @@ services:
         - "traefik.http.routers.thing.entrypoints=web"
         - "traefik.http.services.thing.loadbalancer.server.port=8080"
         - "traefik.http.routers.thing.service=thing"
-
-networks:
-  public:
-    external: true
