@@ -3,8 +3,6 @@ version: "3.8"
 services:
   thing:
     image: gldecurtins/thing:latest
-    networks:
-      - public
     ports:
       - "8080:8080"
     deploy:
@@ -12,6 +10,7 @@ services:
       replicas: 1
       labels:
         - "traefik.enable=true"
+        - "traefik.docker.lbswarm=true"
         - "traefik.http.routers.thing.rule=Host(`thing.uemd.net`)"
         - "traefik.http.routers.thing.entrypoints=web"
         - "traefik.http.services.thing.loadbalancer.server.port=8080"
