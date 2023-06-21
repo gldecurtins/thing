@@ -3,6 +3,8 @@ version: "3.8"
 services:
   thing:
     image: gldecurtins/thing:latest
+    networks:
+      - public
     ports:
       - "8080:8080"
     deploy:
@@ -15,3 +17,7 @@ services:
         - "traefik.http.routers.thing.entrypoints=web"
         - "traefik.http.services.thing.loadbalancer.server.port=8080"
         - "traefik.http.routers.thing.service=thing"
+
+networks:
+  public:
+    external: true
