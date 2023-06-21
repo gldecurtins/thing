@@ -1,12 +1,9 @@
-version: "3.8"
-
 services:
   thing:
     build:
-      context: .
-      target: aiohttp
-    command: python main.py
+      context: thing
+      target: builder
     volumes:
-      - ./app:/app/
+      - ./thing/app:/app/
     ports:
       - "8080:8080"
