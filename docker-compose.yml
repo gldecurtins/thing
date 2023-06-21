@@ -2,8 +2,8 @@ version: "3.8"
 
 services:
   thing:
-    image: thing
     build: .
+    command: python main.py
     volumes:
       - ./app:/app/
     ports:
