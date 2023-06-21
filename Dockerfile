@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1
-FROM python:3.11.4-alpine
+FROM python:3.11.4-alpine AS aiohttp
 ARG REQUIREMENTS=requirements-dev.txt
 WORKDIR /app
 COPY requirements.txt requirements-dev.txt /app/

@@ -2,7 +2,9 @@ version: "3.8"
 
 services:
   thing:
-    build: .
+    build:
+      context: .
+      target: aiohttp
     command: python main.py
     volumes:
       - ./app:/app/
