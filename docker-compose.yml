@@ -2,10 +2,6 @@ version: "3.8"
 
 services:
   thing:
-    build:
-      context: thing
-      target: builder
-    volumes:
-      - ./thing/app:/app/
+    image: gldecurtins/thing:latest
     ports:
       - "8080:8080"
