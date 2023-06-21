@@ -5,3 +5,13 @@ services:
     image: gldecurtins/thing:latest
     ports:
       - "8080:8080"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.thing.rule=Host(`thing.uemd.net`)"
+      - "traefik.http.routers.thing.entrypoints=web"
+      - "traefik.http.services.thing.loadbalancer.server.port=8080"
+      - "traefik.http.routers.thing.service=thing"
+
+networks:
+  public:
+    external: true
