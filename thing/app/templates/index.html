@@ -2,8 +2,23 @@
 <html lang="en">
   <head>
     <title>Thing</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="application-name" content="Thing" />
+    <meta name="apple-mobile-web-app-title" content="Thing" />
+    <meta name="theme-color" content="#3b82f6" />
+    <meta name="msapplication-navbutton-color" content="#3b82f6" />
     <script src="https://unpkg.com/alpinejs" defer></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      @supports (-webkit-touch-callout: none) {
+        .h-screen {
+          height: 100vh;
+          max-height: -webkit-fill-available !important;
+        }
+      }
+    </style>
   </head>
   <body>
     <div
@@ -13,7 +28,7 @@
     >
       <div
         id="messages"
-        class="flex flex-col space-y-1 p-3 overflow-y-auto scrollbar-thumb-blue scrollbar-thumb-rounded scrollbar-track-blue-lighter scrollbar-w-2 scrolling-touch"
+        class="flex p-3 flex-col overflow-y-auto scrollbar-thumb-blue scrollbar-thumb-rounded scrollbar-track-blue-lighter scrollbar-w-2 scrolling-touch"
       >
         <template x-for="(message, key) in messages">
           <pre
@@ -22,14 +37,15 @@
           ></pre>
         </template>
       </div>
-      <div class="border-t-2 border-gray-200 px-4 pt-4 mb-2 sm:mb-0">
+      <div class="border-t-2 border-gray-200 pt-4 mb-2 sm:mb-0">
         <div class="relative flex">
           <input
             type="text"
             x-model="input"
             @keyup.enter="send"
+            x-bind:disabled="sendDisabled"
             placeholder="Message or /h for help"
-            class="w-full focus:outline-none focus:placeholder-gray-400 text-gray-600 placeholder-gray-600 pl-12 bg-gray-200 rounded-md py-3"
+            class="w-full focus:outline-none focus:placeholder-gray-400 text-gray-600 placeholder-gray-600 p-3 bg-gray-200 rounded-md py-3"
           />
           <div class="absolute right-0 items-center inset-y-0 hidden sm:flex">
             <button
