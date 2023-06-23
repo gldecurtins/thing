@@ -43,15 +43,15 @@
             type="text"
             x-model="input"
             @keyup.enter="send"
-            x-bind:disabled="sendDisabled"
-            placeholder="Message or /h for help"
+            x-bind:disabled="disabled"
+            x-bind:placeholder="placeholder"
             class="w-full focus:outline-none focus:placeholder-gray-400 text-gray-600 placeholder-gray-600 p-3 bg-gray-200 rounded-md py-3"
           />
           <div class="absolute right-0 items-center inset-y-0 hidden sm:flex">
             <button
               type="button"
               @click="send"
-              x-bind:disabled="sendDisabled"
+              x-bind:disabled="disabled"
               class="inline-flex items-center justify-center rounded-lg px-4 py-3 transition duration-500 ease-in-out text-white bg-blue-500 hover:bg-blue-400 focus:outline-none"
             >
               <span class="font-bold">Send</span>
@@ -73,7 +73,8 @@
     <script>
       document.addEventListener("alpine:init", () => {
         Alpine.data("thing", () => ({
-          sendDisabled: true,
+          disabled: true,
+          placeholder: "Disconnected",
           socket: null,
           input: "",
           messages: [],
@@ -85,12 +86,14 @@
             socket = new WebSocket(socketUri);
 
             socket.onopen = () => {
-              this.sendDisabled = false;
+              this.disabled = false;
+              this.placeholder = "Message of /h for help";
             };
 
             socket.onclose = () => {
               this.socket = null;
-              this.sendDisabled = true;
+              this.disabled = true;
+              this.placeholder = "Disconnected";
             };
 
             socket.onmessage = (event) => {
@@ -103,6 +106,8 @@
             if (this.socket != null) {
               this.socket.close();
               this.socket = null;
+              this.disabled = true;
+              this.placeholder = "Disconnected";
             }
           },
 
