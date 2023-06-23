@@ -9,8 +9,8 @@ log = logging.getLogger(__name__)
 
 
 def get_random_name():
-    fake = Faker()
-    return fake.name()
+    faker = Faker()
+    return faker.unique.first_name()
 
 
 async def index(request):
