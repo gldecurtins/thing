@@ -1,125 +1,99 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <title>Thing</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="application-name" content="Thing" />
-    <meta name="apple-mobile-web-app-title" content="Thing" />
-    <meta name="theme-color" content="#3b82f6" />
-    <meta name="msapplication-navbutton-color" content="#3b82f6" />
-    <script src="https://unpkg.com/alpinejs" defer></script>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-      @supports (-webkit-touch-callout: none) {
-        .h-screen {
-          height: 100vh;
-          max-height: -webkit-fill-available !important;
-        }
-      }
-    </style>
-  </head>
-  <body>
-    <div
-      class="font-mono flex-1 p:2 sm:p-6 justify-between flex flex-col h-screen"
-      x-data="thing"
-      x-init="connect"
-    >
-      <div
-        id="messages"
-        class="flex p-3 flex-col overflow-y-auto scrollbar-thumb-blue scrollbar-thumb-rounded scrollbar-track-blue-lighter scrollbar-w-2 scrolling-touch"
-      >
-        <template x-for="(message, key) in messages">
-          <pre
-            class="flex items-end leading-tight w-full"
-            x-text="message.text"
-          ></pre>
-        </template>
-      </div>
-      <div class="border-t-2 border-gray-200 pt-4 mb-2 sm:mb-0">
-        <div class="relative flex">
-          <input
-            type="text"
-            x-model="input"
-            @keyup.enter="send"
-            x-bind:disabled="disabled"
-            x-bind:placeholder="placeholder"
-            class="w-full focus:outline-none focus:placeholder-gray-400 text-gray-600 placeholder-gray-600 p-3 bg-gray-200 rounded-md py-3"
-          />
-          <div class="absolute right-0 items-center inset-y-0 hidden sm:flex">
-            <button
-              type="button"
-              @click="send"
-              x-bind:disabled="disabled"
-              class="inline-flex items-center justify-center rounded-lg px-4 py-3 transition duration-500 ease-in-out text-white bg-blue-500 hover:bg-blue-400 focus:outline-none"
-            >
-              <span class="font-bold">Send</span>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-                class="h-6 w-6 ml-2 transform rotate-90"
-              >
-                <path
-                  d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z"
-                ></path>
-              </svg>
-            </button>
-          </div>
+
+<head>
+  <title>Thing</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="application-name" content="Thing" />
+  <meta name="apple-mobile-web-app-title" content="Thing" />
+  <meta name="theme-color" content="#3b82f6" />
+  <meta name="msapplication-navbutton-color" content="#3b82f6" />
+  <script src="https://unpkg.com/alpinejs" defer></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body>
+  <div class="font-mono p-3" x-data="thing" x-init="connect">
+    <header class="sticky top-0 z-50">
+      <div class="relative flex pb-3">
+        <input type="text" x-model="input" @keyup.enter="send" x-bind:disabled="disabled"
+          x-bind:placeholder="placeholder"
+          class="w-full focus:outline-none focus:placeholder-gray-400 text-gray-600 placeholder-gray-600 p-3 bg-gray-200 rounded-md py-3" />
+        <div class="right-0 items-center inset-y-0 hidden sm:flex">
+          <button type="button" @click="send" x-bind:disabled="disabled"
+            class="inline-flex items-center justify-center rounded-lg px-4 py-3 transition duration-500 ease-in-out text-white bg-blue-500 hover:bg-blue-400 focus:outline-none">
+            <span class="font-bold">Send</span>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"
+              class="h-6 w-6 ml-2 transform rotate-90">
+              <path
+                d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z">
+              </path>
+            </svg>
+          </button>
         </div>
       </div>
+    </header>
+    <div id="messages" class="relative">
+      <template x-for="(message, key) in messages">
+        <pre class="flex items-end leading-tight w-full" x-text="message.text"></pre>
+      </template>
     </div>
-    <script>
-      document.addEventListener("alpine:init", () => {
-        Alpine.data("thing", () => ({
-          disabled: true,
-          placeholder: "Disconnected",
-          socket: null,
-          input: "",
-          messages: [],
+  </div>
+  <script>
+    document.addEventListener("alpine:init", () => {
+      Alpine.data("thing", () => ({
+        disabled: true,
+        placeholder: "Disconnected",
+        socket: null,
+        input: "",
+        messages: [],
 
-          connect() {
-            var socketUri =
-              ((window.location.protocol == "https:" && "wss://") || "ws://") +
-              window.location.host;
-            socket = new WebSocket(socketUri);
+        connect() {
+          var socketUri =
+            ((window.location.protocol == "https:" && "wss://") || "ws://") +
+            window.location.host;
+          socket = new WebSocket(socketUri);
 
-            socket.onopen = () => {
-              this.disabled = false;
-              this.placeholder = "Message of /h for help";
-            };
+          socket.onopen = () => {
+            this.disabled = false;
+            this.placeholder = "Message of /h for help";
+          };
 
-            socket.onclose = () => {
-              this.socket = null;
-              this.disabled = true;
-              this.placeholder = "Disconnected";
-            };
+          socket.onclose = () => {
+            this.socket = null;
+            this.disabled = true;
+            this.placeholder = "Disconnected";
+          };
 
-            socket.onmessage = (event) => {
-              var response = JSON.parse(event.data);
-              this.messages.push({ text: response.text });
-            };
-          },
+          socket.onmessage = (event) => {
+            var response = JSON.parse(event.data);
+            this.messages.unshift({ text: response.text });
+            this.messages.splice(1024);
+          };
+        },
 
-          disconnect() {
-            if (this.socket != null) {
-              this.socket.close();
-              this.socket = null;
-              this.disabled = true;
-              this.placeholder = "Disconnected";
-            }
-          },
+        disconnect() {
+          if (this.socket != null) {
+            this.socket.close();
+            this.socket = null;
+            this.disabled = true;
+            this.placeholder = "Disconnected";
+          }
+        },
 
-          send() {
-            if (this.input) {
-              socket.send(this.input);
-              this.messages.push({ text: this.input });
-              this.input = "";
-            }
-          },
-        }));
-      });
-    </script>
-  </body>
+        send() {
+          if (this.input) {
+            socket.send(this.input);
+            this.messages.unshift({ text: this.input });
+            this.messages.splice(1024);
+            this.input = "";
+          }
+        },
+      }));
+    });
+  </script>
+</body>
+
 </html>
