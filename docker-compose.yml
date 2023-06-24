@@ -2,7 +2,7 @@ version: "3.8"
 
 services:
   thing:
-    image: gldecurtins/thing:latest
+    image: ghcr.io/gldecurtins/thing:main
     networks:
       - public
     ports:
