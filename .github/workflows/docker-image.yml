@@ -44,8 +44,11 @@ jobs:
       - name: Build and push Docker image
         uses: docker/setup-buildx-action@v2
         with:
-          context: thing
           platforms: linux/amd64,linux/arm64
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+          
+      - name: Build and export
+        uses: docker/build-push-action@v4
+        with:
+          context: thing
+          tags: myimage:latest
+          outputs: type=docker,dest=/tmp/myimage.tar
