@@ -50,5 +50,7 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: thing
-          tags: myimage:latest
-          outputs: type=docker,dest=/tmp/myimage.tar
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
