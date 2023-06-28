@@ -4,6 +4,6 @@ services:
   thing:
     build: thing
     volumes:
-      - .:/app
+      - ./thing/app:/app
     ports:
       - "8080:8080"
