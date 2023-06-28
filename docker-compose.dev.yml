@@ -1,0 +1,15 @@
+version: "3.8"
+
+services:
+  thing:
+    build: .
+    volumes: .:/app
+    networks:
+      - public
+    ports:
+      - "8080:8080"
+
+
+networks:
+  public:
+    external: true

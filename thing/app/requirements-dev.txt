@@ -1,0 +1,7 @@
+uvicorn
+fastapi
+websockets
+faker==18.11.1
+
+flake8==6.0.0
+black==23.1.0

@@ -1,0 +1,4 @@
+uvicorn
+fastapi
+websockets
+faker==18.11.1
