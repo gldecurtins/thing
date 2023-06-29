@@ -6,7 +6,7 @@ services:
     networks:
       - public
     ports:
-      - "8000:8000"
+      - "2001:8000"
     deploy:
       mode: replicated
       replicas: 1
@@ -15,7 +15,7 @@ services:
         - "traefik.docker.lbswarm=true"
         - "traefik.http.routers.thing.rule=Host(`thing.uemd.net`)"
         - "traefik.http.routers.thing.entrypoints=web"
-        - "traefik.http.services.thing.loadbalancer.server.port=8000"
+        - "traefik.http.services.thing.loadbalancer.server.port=2001"
         - "traefik.http.routers.thing.service=thing"
 
 networks:
