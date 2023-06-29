@@ -2,9 +2,9 @@ version: "3.8"
 
 services:
   thing-dev:
-    build: thing
+    build: container
     command: "uvicorn main:app --host 0.0.0.0 --reload --log-level debug"
     volumes:
-      - ./thing/app:/app
+      - ./container/app:/app
     ports:
       - "8000:8000"
