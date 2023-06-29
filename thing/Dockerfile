@@ -6,4 +6,4 @@ RUN pip install --upgrade pip
 RUN pip install --upgrade --no-cache-dir --requirement requirements.txt
 
 EXPOSE 8000
-CMD ["python", "main.py"]
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0"]
