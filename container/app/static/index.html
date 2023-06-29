@@ -37,7 +37,7 @@
     </header>
     <div id="messages" class="relative">
       <template x-for="(message, key) in messages">
-        <pre class="flex items-end leading-tight w-full" x-text="message.text"></pre>
+        <pre class="flex items-end leading-tight w-full" x-text="message"></pre>
       </template>
     </div>
   </div>
@@ -67,9 +67,8 @@
             this.placeholder = "Disconnected";
           };
 
-          socket.onmessage = (event) => {
-            var response = JSON.parse(event.data);
-            this.messages.unshift({ text: response.text });
+          socket.onmessage = (message) => {
+            this.messages.unshift(message.data);
             this.messages.splice(1024);
           };
         },
@@ -86,7 +85,7 @@
         send() {
           if (this.input) {
             socket.send(this.input);
-            this.messages.unshift({ text: this.input });
+            this.messages.unshift(this.input);
             this.messages.splice(1024);
             this.input = "";
           }

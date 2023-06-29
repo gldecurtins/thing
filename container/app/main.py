@@ -1,15 +1,8 @@
-import uvicorn
-import logging
-
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.staticfiles import StaticFiles
 from faker import Faker
 
-log = logging.getLogger(__name__)
-
 app = FastAPI()
-
-app.mount("/", StaticFiles(directory="static", html=True), name="static")
 
 
 def get_random_name():
@@ -40,13 +33,16 @@ manager = ConnectionManager()
 
 
 @app.websocket("/")
-async def websocket_endpoint(websocket: WebSocket, client_id: int):
+async def websocket_endpoint(websocket: WebSocket):
     await manager.connect(websocket)
     try:
         while True:
             data = await websocket.receive_text()
-            await manager.send_personal_message(f"You wrote: {data}", websocket)
-            await manager.broadcast(f"Client #{client_id} says: {data}")
+            await manager.send_personal_message(f"{data}", websocket)
+            await manager.broadcast(f"Client says: {data}")
     except WebSocketDisconnect:
         manager.disconnect(websocket)
-        await manager.broadcast(f"Client #{client_id} left the chat")
+        await manager.broadcast(f"Client left the chat")
+
+
+app.mount("/", StaticFiles(directory="static", html=True), name="static")
