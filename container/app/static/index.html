@@ -85,8 +85,6 @@
         send() {
           if (this.input) {
             socket.send(this.input);
-            this.messages.unshift(this.input);
-            this.messages.splice(1024);
             this.input = "";
           }
         },
