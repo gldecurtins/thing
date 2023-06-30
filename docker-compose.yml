@@ -4,7 +4,7 @@ services:
   thing:
     image: ghcr.io/gldecurtins/thing:main
     networks:
-      - public
+      - traefik
     ports:
       - "2001:8000"
     deploy:
@@ -19,5 +19,5 @@ services:
         - "traefik.http.routers.thing.service=thing"
 
 networks:
-  public:
+  traefik:
     external: true
