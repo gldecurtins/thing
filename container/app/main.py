@@ -1,4 +1,4 @@
-from typing import TypedDict
+from typing import TypedDict, NotRequired
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.staticfiles import StaticFiles
 from faker import Faker
@@ -12,37 +12,37 @@ def get_random_name():
 
 
 class Connection(TypedDict):
-    websocket: WebSocket
-    name: str
-    channel: str
+    user_name: str
+    channel_name: str
+    channel_password: NotRequired[str]
 
 
 class ConnectionManager:
     def __init__(self):
-        self.active_connections: dict[Connection] = {}
+        self.connections: Connection = {}
 
     async def connect(self, websocket: WebSocket):
         await websocket.accept()
-        self.active_connections[websocket] = get_random_name()
-        text = f">> {self.active_connections[websocket]} connected"
-        await manager.send_personal_message(text, websocket)
-        await manager.send_channel_broadcast(text, websocket)
+        self.connections[websocket] = {}
+        self.connections[websocket]["user_name"] = get_random_name()
+        self.connections[websocket]["channel_name"] = "1"
+        text = f">> {self.connections[websocket]['user_name']} connected"
+        await manager.send_to_user(text, websocket)
+        await manager.send_to_channel(text, websocket)
 
     async def disconnect(self, websocket: WebSocket):
-        text = f">> {self.active_connections[websocket]} disconnected"
-        await manager.send_channel_broadcast(text, websocket)
-        del self.active_connections[websocket]
+        text = f">> {self.connections[websocket]['user_name']} disconnected"
+        await manager.send_to_channel(text, websocket)
+        del self.connections[websocket]
 
-    async def send_personal_message(self, text: str, websocket: WebSocket):
+    async def send_to_user(self, text: str, websocket: WebSocket):
         await websocket.send_text(text)
 
-    async def send_server_broadcast(self, text: str):
-        for connection in self.active_connections:
-            await connection.send_text(text)
-
-    async def send_channel_broadcast(self, text: str, websocket: WebSocket):
-        for connection in self.active_connections:
-            if connection is not websocket:
+    async def send_to_channel(self, text: str, websocket: WebSocket):
+        from_channel_name = self.connections[websocket]["channel_name"]
+        for connection in self.connections:
+            to_channel_name = self.connections[connection]["channel_name"]
+            if from_channel_name is to_channel_name and connection is not websocket:
                 await connection.send_text(text)
 
 
@@ -55,13 +55,29 @@ async def websocket_endpoint(websocket: WebSocket):
     try:
         while True:
             text = await websocket.receive_text()
-            if text.startswith("/"):
-                text = f"{manager.active_connections}"
-                await manager.send_personal_message(text, websocket)
+            if text.startswith("/c"):
+                channel_name = text.split()[1]
+                manager.connections[websocket]["channel_name"] = channel_name
+                await manager.send_to_user(
+                    f">> Channel changed to {channel_name}", websocket
+                )
+            elif text.startswith("/s"):
+                for connection in manager.connections:
+                    await manager.send_to_user(
+                        f"{manager.connections[connection]['user_name']} @{manager.connections[connection]['channel_name']}",
+                        websocket,
+                    )
+            elif text.startswith("/"):
+                help_text = [
+                    "/c <channel name> to change the channel",
+                    "/s to show who's online",
+                ]
+                for text in help_text:
+                    await manager.send_to_user(text, websocket)
             else:
-                await manager.send_personal_message(text, websocket)
-                await manager.send_channel_broadcast(
-                    f"<{manager.active_connections[websocket]}> {text}", websocket
+                await manager.send_to_user(text, websocket)
+                await manager.send_to_channel(
+                    f"<{manager.connections[websocket]['user_name']}> {text}", websocket
                 )
     except WebSocketDisconnect:
         await manager.disconnect(websocket)
