@@ -57,9 +57,17 @@ async def websocket_endpoint(websocket: WebSocket):
             text = await websocket.receive_text()
             if text.startswith("/c"):
                 channel_name = text.split()[1]
+                await manager.send_to_channel(
+                    f">> {manager.connections[websocket]['user_name']} leaves this channel",
+                    websocket,
+                )
                 manager.connections[websocket]["channel_name"] = channel_name
                 await manager.send_to_user(
                     f">> Channel changed to {channel_name}", websocket
+                )
+                await manager.send_to_channel(
+                    f">> {manager.connections[websocket]['user_name']} joined this channel",
+                    websocket,
                 )
             elif text.startswith("/s"):
                 for connection in manager.connections:
