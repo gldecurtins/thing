@@ -6,11 +6,11 @@
 version: 2
 updates:
   - package-ecosystem: "pip" # See documentation for possible values
-    directory: "/" # Location of package manifests
+    directory: "/container/app/" # Location of package manifests
     schedule:
       interval: "weekly"
   - package-ecosystem: "docker" # See documentation for possible values
-    directory: "/" # Location of package manifests
+    directory: "/container/" # Location of package manifests
     schedule:
       interval: "weekly"
   - package-ecosystem: "github-actions" # See documentation for possible values
