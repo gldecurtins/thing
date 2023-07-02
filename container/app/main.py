@@ -54,9 +54,13 @@ async def websocket_endpoint(websocket: WebSocket):
     await manager.connect(websocket)
     try:
         while True:
-            text = await websocket.receive_text()
-            if text.startswith("/c"):
-                channel_name = text.split()[1]
+            received_text = await websocket.receive_text()
+            if received_text.startswith("/a"):
+                text = f"-> {manager.connections[websocket]['user_name']} {received_text.split()[1]}"
+                await manager.send_to_user(text, websocket)
+                await manager.send_to_channel(text, websocket)
+            elif received_text.startswith("/c"):
+                channel_name = received_text.split()[1]
                 await manager.send_to_channel(
                     f">> {manager.connections[websocket]['user_name']} leaves this channel",
                     websocket,
@@ -69,23 +73,25 @@ async def websocket_endpoint(websocket: WebSocket):
                     f">> {manager.connections[websocket]['user_name']} joined this channel",
                     websocket,
                 )
-            elif text.startswith("/s"):
+            elif received_text.startswith("/s"):
                 for connection in manager.connections:
                     await manager.send_to_user(
                         f"{manager.connections[connection]['user_name']} @{manager.connections[connection]['channel_name']}",
                         websocket,
                     )
-            elif text.startswith("/"):
+            elif received_text.startswith("/"):
                 help_text = [
+                    "/a <text> action something",
                     "/c <channel name> to change the channel",
                     "/s to show who's online",
                 ]
                 for text in help_text:
                     await manager.send_to_user(text, websocket)
             else:
-                await manager.send_to_user(text, websocket)
+                await manager.send_to_user(received_text, websocket)
                 await manager.send_to_channel(
-                    f"<{manager.connections[websocket]['user_name']}> {text}", websocket
+                    f"<{manager.connections[websocket]['user_name']}> {received_text}",
+                    websocket,
                 )
     except WebSocketDisconnect:
         await manager.disconnect(websocket)
