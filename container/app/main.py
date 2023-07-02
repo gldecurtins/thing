@@ -56,7 +56,7 @@ async def websocket_endpoint(websocket: WebSocket):
         while True:
             received_text = await websocket.receive_text()
             if received_text.startswith("/a"):
-                text = f"-> {manager.connections[websocket]['user_name']} {received_text.split()[1]}"
+                text = f"-> {manager.connections[websocket]['user_name']} {received_text.split(' ', 1)[1]}"
                 await manager.send_to_user(text, websocket)
                 await manager.send_to_channel(text, websocket)
             elif received_text.startswith("/c"):
