@@ -3,7 +3,9 @@ version: "3.9"
 services:
   thing-dev:
     build: container
-    command: "uvicorn main:app --reload --log-level debug"
+    environment:
+      - UVICORN_RELOAD=true
+      - UVICORN_LOG_LEVEL=debug
     volumes:
       - ./container/app:/app
     ports:
